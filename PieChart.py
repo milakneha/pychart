@@ -26,7 +26,7 @@ def report_gen(template_name,sheet_name,chart_cell_name):
 
         #copy csv file data from csv to target excel sheet
         workbook = Workbook(outputfilename)
-        num_format = workbook.add_format({'num_format': '0.0%'})
+        item_qty_fmt = workbook.add_format({'num_format': '#,##0'})
 
         worksheet = workbook.add_worksheet(sheet_name)
 
@@ -36,14 +36,21 @@ def report_gen(template_name,sheet_name,chart_cell_name):
             #headers = next(reader, None)
             for r, row in enumerate(reader):
                 for c, col in enumerate(row):
-                        worksheet.write(r, c, col)
-        print("Total rows are {rows} and total columns are {cols}".format(rows=r, cols=c))
-        worksheet.set_column('$B$2:$B$4', None, num_format)
+                    #skip first line formatting cause its header
+                    #format 2nd column to numeric format
+                    if (r != 0) and (c == 1):
+                        #print(r, c, "format loop", col)
+                        worksheet.write_number(r, c, int(col), item_qty_fmt)
+                    else:
+                        #print(r, c)
+                        worksheet.write(r,c,col)
+        #print("Total rows are {rows} and total columns are {cols}".format(rows=r, cols=c))
+
 
         chart_cordinates_a = sheet_name+"!$A$2:$A$"+str(r+1)
         chart_cordinates_b = sheet_name+"!$B$2:$B$"+str(r+1)
 
-        print(chart_cordinates_a, chart_cordinates_b)
+        #print(chart_cordinates_a, chart_cordinates_b)
         #now create pie chart and place it in the same worksheet, at pie chart coordinate
         pie_chart = workbook.add_chart({'type': 'pie'})
         pie_chart.add_series({
